@@ -2,6 +2,7 @@ import { spawn } from "node:child_process";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import type { AppConfig } from "../../config/index.ts";
+import { writeJsonFileAtomic } from "../shared/json-files.ts";
 import type {
   AgentCompletionHandler,
   AgentJob,
@@ -404,11 +405,11 @@ function parseJsonObject(value: string): Record<string, unknown> {
 }
 
 async function writeJobMetadata(job: AgentJob): Promise<void> {
-  await writeFile(job.metadataPath, `${JSON.stringify(job, null, 2)}\n`);
+  await writeJsonFileAtomic(job.metadataPath, job);
 }
 
 async function writeAgentResult(resultPath: string, result: WorkerResult): Promise<void> {
-  await writeFile(resultPath, `${JSON.stringify(result, null, 2)}\n`);
+  await writeJsonFileAtomic(resultPath, result);
 }
 
 async function writeAgentOutput(agentOutputPath: string, output: string): Promise<void> {

@@ -11,6 +11,7 @@ import type {
 import type { AppConfig } from "../../config/index.ts";
 import type { WebhookContext } from "../../core/webhook-context.ts";
 import { parseWorkerResult } from "../shared/completion-envelope.ts";
+import { writeJsonFileAtomic } from "../shared/json-files.ts";
 
 type CodexProcessResult = {
   exitCode: number | null;
@@ -366,11 +367,11 @@ async function readOptionalFile(filePath: string): Promise<string | undefined> {
 }
 
 async function writeJobMetadata(job: AgentJob): Promise<void> {
-  await writeFile(job.metadataPath, `${JSON.stringify(job, null, 2)}\n`);
+  await writeJsonFileAtomic(job.metadataPath, job);
 }
 
 async function writeAgentResult(resultPath: string, result: WorkerResult): Promise<void> {
-  await writeFile(resultPath, `${JSON.stringify(result, null, 2)}\n`);
+  await writeJsonFileAtomic(resultPath, result);
 }
 
 function logCodexJobStarting(config: AppConfig, context: WebhookContext, args: string[]): void {
