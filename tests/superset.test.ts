@@ -25,27 +25,30 @@ import { appendFileSync, existsSync, readFileSync, writeFileSync } from "node:fs
 appendFileSync(${JSON.stringify(argsPath)}, JSON.stringify(process.argv.slice(2)) + "\\n");
 
 if (process.argv[2] === "agents" && process.argv[3] === "create") {
-  process.stdout.write(JSON.stringify({ kind: "terminal", sessionId: "terminal-1", label: "fake-agent" }));
-  process.exit(0);
-}
-
-if (process.argv[2] === "terminals" && process.argv[3] === "read") {
+  process.stdout.write(JSON.stringify({ kind: "terminal", sessionId: "terminal-1", label: "fake-agent" }), () => {
+    process.exit(0);
+  });
+} else if (process.argv[2] === "terminals" && process.argv[3] === "read") {
   const readCountPath = ${JSON.stringify(readCountPath)};
   const count = existsSync(readCountPath) ? Number(readFileSync(readCountPath, "utf8")) : 0;
   writeFileSync(readCountPath, String(count + 1));
   if (count === 0) {
-    process.stdout.write(JSON.stringify({ text: ${JSON.stringify(promptEcho)} }));
-    process.exit(0);
+    process.stdout.write(JSON.stringify({ text: ${JSON.stringify(promptEcho)} }), () => {
+      process.exit(0);
+    });
+  } else {
+    writeFileSync(${JSON.stringify(workerOutputPath)}, ${JSON.stringify(publicAgentOutput)});
+    process.stdout.write(JSON.stringify({
+      text: ${JSON.stringify(completedTerminalText)}
+    }), () => {
+      process.exit(0);
+    });
   }
-  writeFileSync(${JSON.stringify(workerOutputPath)}, ${JSON.stringify(publicAgentOutput)});
-  process.stdout.write(JSON.stringify({
-    text: ${JSON.stringify(completedTerminalText)}
-  }));
-  process.exit(0);
+} else {
+  process.stderr.write("unexpected command", () => {
+    process.exit(1);
+  });
 }
-
-process.stderr.write("unexpected command");
-process.exit(1);
 `
   );
   await chmod(fakeSupersetPath, 0o755);

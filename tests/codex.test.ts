@@ -72,15 +72,18 @@ process.stdin.on("data", (chunk) => {
 });
 process.stdin.on("end", () => {
   if (!stdin.includes("test prompt should not be logged")) {
-    process.stderr.write("missing prompt");
-    process.exit(1);
+    process.stderr.write("missing prompt", () => {
+      process.exit(1);
+    });
+    return;
   }
 
   const outputIndex = args.indexOf("--output-last-message");
   writeFileSync(args[outputIndex + 1], ${JSON.stringify(finalMessage)});
   writeFileSync(${JSON.stringify(workerOutputPath)}, ${JSON.stringify(publicAgentOutput)});
-  process.stdout.write("codex stdout");
-  process.exit(0);
+  process.stdout.write("codex stdout", () => {
+    process.exit(0);
+  });
 });
 `
   );
